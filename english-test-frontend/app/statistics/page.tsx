@@ -296,7 +296,7 @@ export default function StatisticsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {Array.isArray(mappedStats?.recent_activities) && mappedStats.recent_activities.length ? mappedStats.recent_activities.map((activity: any, index: any) => (
+              {Array.isArray(mappedStats.recent_activities) && mappedStats.recent_activities.length ? mappedStats.recent_activities.map((activity: any, index: any) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-4">
                     <div className="text-sm text-gray-600">

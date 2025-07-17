@@ -142,6 +142,14 @@ export default function StatisticsPage() {
     recent_activities: Array.isArray(statsRaw.recent_attempts) ? statsRaw.recent_attempts : []
   } : null;
 
+  if (!mappedStats) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500 text-xl">Loading statistics...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />

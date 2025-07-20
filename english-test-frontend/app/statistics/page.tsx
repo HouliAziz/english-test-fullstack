@@ -218,11 +218,11 @@ export default function StatisticsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mappedStats?.topic_performance?.length ? mappedStats.topic_performance.map((topic: any, index: any) => (
+                {statistics?.topic_performance?.length ? statistics.topic_performance.map((topic: any, index: any) => (
                   <div key={topic.topic} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="text-lg">{topicIcons[topic.topic] || '📚'}</span>
+                        <span className="text-lg">{topicIcons[topic.topic.charAt(0).toUpperCase() + topic.topic.slice(1)] || '📚'}</span>
                         <span className="font-medium">{topic.topic}</span>
                       </div>
                       <div className="text-right text-sm text-gray-600">

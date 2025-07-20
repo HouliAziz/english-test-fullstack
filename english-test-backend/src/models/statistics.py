@@ -154,7 +154,17 @@ class UserStatistics(db.Model):
 
     def to_dict(self):
         level_progress = self.get_level_progress()
-        
+        # Calculate average accuracy across all quizzes
+        from src.models.quiz import QuizAttempt
+        all_attempts = QuizAttempt.query.filter_by(user_id=self.user_id).all()
+        total_correct = 0
+        total_questions = 0
+        for attempt in all_attempts:
+            if attempt.quiz:
+                _, correct_answers = attempt.quiz.calculate_score(attempt.get_answers())
+                total_correct += correct_answers
+                total_questions += len(attempt.quiz.get_questions())
+        average_accuracy = (total_correct / total_questions) * 100 if total_questions else 0
         return {
             'id': self.id,
             'user_id': self.user_id,
@@ -162,7 +172,7 @@ class UserStatistics(db.Model):
             'total_quizzes_taken': self.total_quizzes_taken,
             'total_quizzes_passed': self.total_quizzes_passed,
             'pass_rate': round((self.total_quizzes_passed / self.total_quizzes_taken) * 100, 2) if self.total_quizzes_taken > 0 else 0,
-            'average_score': round(self.average_score, 2),
+            'average_score': round(average_accuracy, 2),
             'total_study_time_minutes': self.total_study_time_minutes,
             'total_study_time_hours': round(self.total_study_time_minutes / 60, 2),
             'current_level': self.current_level,

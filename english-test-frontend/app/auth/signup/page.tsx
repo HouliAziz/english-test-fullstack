@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BookOpen, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -69,9 +70,11 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <img 
+          <Image 
             src="/files_3898045-1752060857844-image-removebg-preview.png" 
             alt="EnglishTest" 
+            width={160}
+            height={112}
             className="w-40 h-28 object-contain"
           />
         </div>

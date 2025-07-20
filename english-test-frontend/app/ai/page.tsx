@@ -1,7 +1,6 @@
 'use client';
 
-import React, { Suspense } from 'react';
-import { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { apiClient } from '@/lib/api';
@@ -86,60 +85,7 @@ const AIPage = () => {
     }
   }, [user, isLoading, router]);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isQuizActive && timeLeft > 0 && !showResult) {
-      interval = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && !showResult) {
-      handleAnswer(null);
-    }
-    return () => clearInterval(interval);
-  }, [isQuizActive, timeLeft, showResult]);
-
-  const startQuiz = async () => {
-    if (!selectedTopic || !selectedLevel) return;
-
-    setIsGenerating(true);
-    try {
-      const quiz = await apiClient.generateQuizWithLesson({
-        topic: selectedTopic,
-        level: selectedLevel.toLowerCase(),
-        num_questions: 5
-      });
-
-      setCurrentQuiz(quiz.quiz);
-      setCurrentQuestion(quiz.quiz.questions[0] || null);
-      setIsQuizActive(true);
-      setQuestionIndex(0);
-      setScore(0);
-      setTimeLeft(30);
-      setSelectedAnswer(null);
-      setShowResult(false);
-      setQuizComplete(false);
-      setAnswers([] as { questionId: string; answer: string }[]);
-      // Fetch quiz with answers from backend
-      const quizWithAnswers = await apiClient.getQuizWithAnswers(quiz.quiz.id);
-      setBackendQuestions(quizWithAnswers.questions);
-
-      toast({
-        title: "Quiz Generated! 🎉",
-        description: `Ready to test your ${selectedTopic} knowledge!`,
-      });
-    } catch (error) {
-      console.error('Failed to generate quiz:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate quiz. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleAnswer = (answerIndex: number | null) => {
+  const handleAnswer = useCallback((answerIndex: number | null) => {
     if (!currentQuestion || showResult) return;
     if (!backendQuestions) return; // Wait for backend answers
     // Find the backend question for currentQuestion.id
@@ -189,6 +135,59 @@ const AIPage = () => {
         description: "Don't worry, keep practicing!",
         variant: "destructive",
       });
+    }
+  }, [currentQuestion, showResult, backendQuestions, timeLeft, toast]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isQuizActive && timeLeft > 0 && !showResult) {
+      interval = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && !showResult) {
+      handleAnswer(null);
+    }
+    return () => clearInterval(interval);
+  }, [isQuizActive, timeLeft, showResult, handleAnswer]);
+
+  const startQuiz = async () => {
+    if (!selectedTopic || !selectedLevel) return;
+
+    setIsGenerating(true);
+    try {
+      const quiz = await apiClient.generateQuizWithLesson({
+        topic: selectedTopic,
+        level: selectedLevel.toLowerCase(),
+        num_questions: 5
+      });
+
+      setCurrentQuiz(quiz.quiz);
+      setCurrentQuestion(quiz.quiz.questions[0] || null);
+      setIsQuizActive(true);
+      setQuestionIndex(0);
+      setScore(0);
+      setTimeLeft(30);
+      setSelectedAnswer(null);
+      setShowResult(false);
+      setQuizComplete(false);
+      setAnswers([] as { questionId: string; answer: string }[]);
+      // Fetch quiz with answers from backend
+      const quizWithAnswers = await apiClient.getQuizWithAnswers(quiz.quiz.id);
+      setBackendQuestions(quizWithAnswers.questions);
+
+      toast({
+        title: "Quiz Generated! 🎉",
+        description: `Ready to test your ${selectedTopic} knowledge!`,
+      });
+    } catch (error) {
+      console.error('Failed to generate quiz:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate quiz. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
     }
   };
 

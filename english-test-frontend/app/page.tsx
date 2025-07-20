@@ -20,6 +20,7 @@ import {
   Zap
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
+import Link from 'next/link';
 
 const topics = [
   { name: 'Sports', icon: '⚽', color: 'bg-blue-100 text-blue-800' },
@@ -280,6 +281,12 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Don&apos;t have an account?{' '}
+          <Link href="/auth/signup" className="font-medium text-red-600 hover:text-red-500">
+            Sign up here
+          </Link>
+        </p>
       </main>
     </div>
   );

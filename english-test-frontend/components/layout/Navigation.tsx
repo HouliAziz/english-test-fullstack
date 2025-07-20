@@ -23,6 +23,7 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import Image from 'next/image';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -45,10 +46,11 @@ export default function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <img 
+              <Image 
                 src="/files_3898045-1752060857844-image-removebg-preview.png" 
                 alt="EnglishTest" 
-                className="w-32 h-20 object-contain"
+                width={128}
+                height={80}
               />
             </Link>
           </div>

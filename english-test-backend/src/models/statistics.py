@@ -132,23 +132,28 @@ class UserStatistics(db.Model):
     def get_topic_performance(self):
         from src.models.quiz import QuizAttempt
         attempts = QuizAttempt.query.filter_by(user_id=self.user_id).all()
-        topic_scores = {}
+        topic_accuracies = {}
         for attempt in attempts:
             topic = None
             if attempt.quiz and attempt.quiz.lesson and hasattr(attempt.quiz.lesson, 'topic'):
                 topic = attempt.quiz.lesson.topic.lower()
             if not topic:
                 continue
-            if topic not in topic_scores:
-                topic_scores[topic] = []
-            topic_scores[topic].append(attempt.score)
+            # Calculate accuracy for this attempt
+            if attempt.quiz:
+                _, correct_answers = attempt.quiz.calculate_score(attempt.get_answers())
+                total_questions = len(attempt.quiz.get_questions())
+                accuracy = (correct_answers / total_questions) * 100 if total_questions else 0
+                if topic not in topic_accuracies:
+                    topic_accuracies[topic] = []
+                topic_accuracies[topic].append(accuracy)
         performance = []
-        for topic, scores in topic_scores.items():
+        for topic, accuracies in topic_accuracies.items():
             performance.append({
                 'topic': topic,
-                'average_score': round(sum(scores) / len(scores), 2),
-                'attempts': len(scores),
-                'best_score': max(scores)
+                'average_score': round(sum(accuracies) / len(accuracies), 2),
+                'attempts': len(accuracies),
+                'best_score': round(max(accuracies), 2)
             })
         return performance
 

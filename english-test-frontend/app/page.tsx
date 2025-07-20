@@ -90,6 +90,7 @@ export default function Home() {
   const xp = stats.experience_points || 0;
   const nextMilestone = Math.ceil((xp + 1) / 100) * 100;
   const pointsToGo = nextMilestone - xp;
+  const averageScore = typeof stats.average_score === 'number' ? Math.round(stats.average_score) : 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -146,13 +147,12 @@ export default function Home() {
 
           <Card className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Next Milestone</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{nextMilestone}</div>
-              <Progress value={Math.min(100, (xp / nextMilestone) * 100)} className="mt-2" />
-              <p className="text-xs text-muted-foreground mt-2">{pointsToGo} points to go</p>
+              <div className="text-2xl font-bold text-green-600">{averageScore}%</div>
+              <p className="text-xs text-muted-foreground">across all quizzes</p>
             </CardContent>
           </Card>
         </div>

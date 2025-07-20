@@ -18,7 +18,10 @@ app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), 'sta
 app.config['SECRET_KEY'] = 'asdf#FGSgvasgf$5$WGT'
 
 # Enable CORS for all routes
-CORS(app, origins="*")
+CORS(app, origins=[
+    "http://localhost:3000",  # local dev
+    "https://english-test-fullstack.vercel.app"  # deployed frontend
+])
 
 app.register_blueprint(user_bp, url_prefix='/api')
 app.register_blueprint(lesson_bp, url_prefix='/api')

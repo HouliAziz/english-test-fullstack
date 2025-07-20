@@ -15,7 +15,6 @@ import Image from 'next/image';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    name: '',
     username: '',
     email: '',
     password: '',
@@ -32,7 +31,7 @@ export default function SignupPage() {
     e.preventDefault();
     setError('');
 
-    if (!formData.name || !formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
@@ -47,7 +46,7 @@ export default function SignupPage() {
       return;
     }
 
-    const success = await signup(formData.email, formData.password, formData.name, formData.username);
+    const success = await signup(formData.email, formData.password, formData.username, formData.username);
     if (success) {
       toast({
         title: "Account created!",

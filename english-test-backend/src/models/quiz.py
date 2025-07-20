@@ -57,47 +57,25 @@ class Quiz(db.Model):
             safe_questions.append(safe_q)
         return safe_questions
 
-    def calculate_score(self, user_answers):
-        """Calculate score based on user answers"""
+    def calculate_score(self, user_answers, timings=None):
         questions = self.get_questions()
         if not questions or not isinstance(questions, list):
-            print("No questions found for quiz or questions are not a list.")
-            return 0
-
+            return 0, 0  # (score, correct_answers)
         if not isinstance(user_answers, dict):
-            print(f"User answers malformed: {user_answers}")
-            return 0
+            return 0, 0
 
+        total_score = 0
         correct_answers = 0
-        total_questions = len(questions)
-        if total_questions == 0:
-            print("No questions to score (total_questions=0).")
-            return 0
-
-        print("Scoring quiz. User answers:", user_answers)
         for question in questions:
-            question_id = question.get('id')
+            question_id = str(question.get('id'))
             correct_answer = question.get('correct_answer')
-            user_answer = user_answers.get(str(question_id))
-            print(
-                f"---\nQuestion object: {question}\nUser answer: {user_answer}\nCorrect answer: {correct_answer}")
-            try:
-                if user_answer is not None and correct_answer is not None and str(user_answer).strip().lower() == str(correct_answer).strip().lower():
-                    print(f"Answer matched for question {question_id}")
-                    correct_answers += 1
-                else:
-                    print(f"Answer did NOT match for question {question_id}")
-            except Exception as e:
-                print(
-                    f"Error comparing answers for question {question_id}: {e}")
-
-        print(f"Total correct: {correct_answers} / {total_questions}")
-        try:
-            score = round((correct_answers / total_questions) * 100, 2)
-        except Exception as e:
-            print(f"Error calculating score: {e}")
-            score = 0
-        return score
+            user_answer = user_answers.get(question_id)
+            if user_answer is not None and correct_answer is not None and str(user_answer).strip().lower() == str(correct_answer).strip().lower():
+                correct_answers += 1
+                total_score += 10
+                if timings and question_id in timings and timings[question_id] < 10:
+                    total_score += 5
+        return total_score, correct_answers
 
     def to_dict(self, include_answers=False):
         return {

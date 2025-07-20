@@ -221,10 +221,13 @@ def submit_quiz(current_user, quiz_id):
             return jsonify({'error': 'Answers are required'}), 400
 
         user_answers = data['answers']
+        timings = data.get('timings', {})  # timings is a dict: {question_id: seconds}
         time_taken_minutes = data.get('time_taken_minutes')
 
-        # Calculate score
-        score = quiz.calculate_score(user_answers)
+        # Calculate score and correct answers
+        score, correct_answers = quiz.calculate_score(user_answers, timings)
+        total_questions = len(quiz.get_questions())
+        accuracy = (correct_answers / total_questions) * 100 if total_questions else 0
         is_passed = score >= quiz.passing_score
 
         # Create quiz attempt
@@ -245,7 +248,11 @@ def submit_quiz(current_user, quiz_id):
             stats = UserStatistics(user_id=current_user.id)
             db.session.add(stats)
 
-        stats.update_quiz_stats(attempt)
+        # Recalculate total points from all attempts
+        all_attempts = QuizAttempt.query.filter_by(user_id=current_user.id).all()
+        stats.experience_points = sum(int(a.score) for a in all_attempts)
+        stats.total_quizzes_taken = len(all_attempts)
+        stats.average_score = round(sum(a.score for a in all_attempts) / len(all_attempts), 2) if all_attempts else 0
 
         # Update topic-specific score if lesson has topic
         if quiz.lesson:
@@ -263,6 +270,7 @@ def submit_quiz(current_user, quiz_id):
             'message': 'Quiz submitted successfully',
             'attempt': attempt.to_dict(),
             'score': score,
+            'accuracy': accuracy,
             'is_passed': is_passed,
             'quiz_with_answers': quiz_with_answers,
             'statistics': stats.to_dict()

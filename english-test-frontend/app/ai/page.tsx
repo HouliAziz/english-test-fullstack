@@ -78,6 +78,8 @@ const AIPage = () => {
   const [answers, setAnswers] = useState<{ questionId: string; answer: string }[]>([]);
   // Add a new state to store correct answers from backend
   const [backendQuestions, setBackendQuestions] = useState<Question[] | null>(null);
+  const [questionTimings, setQuestionTimings] = useState<{ [questionId: string]: number }>({});
+  const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -85,9 +87,28 @@ const AIPage = () => {
     }
   }, [user, isLoading, router]);
 
+  useEffect(() => {
+    if (isQuizActive && currentQuestion) {
+      setQuestionStartTime(Date.now());
+    }
+  }, [isQuizActive, currentQuestion]);
+
   const handleAnswer = useCallback((answerIndex: number | null) => {
     if (!currentQuestion || showResult) return;
     if (!backendQuestions) return; // Wait for backend answers
+
+    // Calculate time taken for this question
+    let timeTaken = 30 - timeLeft;
+    if (questionStartTime !== null) {
+      timeTaken = Math.round((Date.now() - questionStartTime) / 1000);
+    }
+
+    // Save timing for this question
+    setQuestionTimings(prev => ({
+      ...prev,
+      [currentQuestion.id]: timeTaken
+    }));
+
     // Find the backend question for currentQuestion.id
     const backendQuestion = backendQuestions.find(q => String(q.id) === String(currentQuestion.id));
     // If no answer selected (timeout) or invalid answer index, mark as incorrect
@@ -111,7 +132,6 @@ const AIPage = () => {
       backendQuestion.correct_answer &&
       selectedOption.toLowerCase().trim() === backendQuestion.correct_answer.toLowerCase().trim()
     );
-    const timeTaken = 30 - timeLeft;
     let points = 0;
     if (correct) {
       points = 10;
@@ -136,7 +156,7 @@ const AIPage = () => {
         variant: "destructive",
       });
     }
-  }, [currentQuestion, showResult, backendQuestions, timeLeft, toast]);
+  }, [currentQuestion, showResult, backendQuestions, timeLeft, toast, questionStartTime]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -220,7 +240,7 @@ const AIPage = () => {
       });
 
       // Submit quiz attempt to backend and get results
-      const result = await apiClient.submitQuizAttempt(currentQuiz.id, userAnswersDict);
+      const result = await apiClient.submitQuizAttempt(currentQuiz.id, userAnswersDict, questionTimings);
 
       // Use backend score directly
       const backendScore = result.score || 0;

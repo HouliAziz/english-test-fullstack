@@ -200,12 +200,11 @@ class ApiClient {
     return quizRes;
   }
 
-  async submitQuizAttempt(quizId: number, answers: Record<string, string>): Promise<any> {
-    // Accept answers as a dictionary and send as { answers: dict }
-    // Ensure answers is a dictionary, not an array
+  async submitQuizAttempt(quizId: number, answers: Record<string, string>, timings?: Record<string, number>): Promise<any> {
+    // Accept answers as a dictionary and send as { answers: dict, timings }
     return this.request<any>(`/api/quizzes/${quizId}/submit`, {
       method: 'POST',
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify({ answers, timings }),
     });
   }
 

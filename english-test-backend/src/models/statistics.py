@@ -47,11 +47,8 @@ class UserStatistics(db.Model):
         else:
             self.average_score = ((self.average_score * (self.total_quizzes_taken - 1)) + quiz_attempt.score) / self.total_quizzes_taken
         
-        # Add experience points
-        points = int(quiz_attempt.score / 10)  # 10 points per 10% score
-        if quiz_attempt.is_passed:
-            points += 10  # Bonus for passing
-        self.experience_points += points
+        # Add experience points (raw score, not percentage)
+        self.experience_points += int(quiz_attempt.score)
         
         # Update study time
         if quiz_attempt.time_taken_minutes:

@@ -129,6 +129,29 @@ class UserStatistics(db.Model):
             'xp_needed': None
         }
 
+    def get_topic_performance(self):
+        from src.models.quiz import QuizAttempt
+        attempts = QuizAttempt.query.filter_by(user_id=self.user_id).all()
+        topic_scores = {}
+        for attempt in attempts:
+            topic = None
+            if attempt.quiz and attempt.quiz.lesson and hasattr(attempt.quiz.lesson, 'topic'):
+                topic = attempt.quiz.lesson.topic.lower()
+            if not topic:
+                continue
+            if topic not in topic_scores:
+                topic_scores[topic] = []
+            topic_scores[topic].append(attempt.score)
+        performance = []
+        for topic, scores in topic_scores.items():
+            performance.append({
+                'topic': topic,
+                'average_score': round(sum(scores) / len(scores), 2),
+                'attempts': len(scores),
+                'best_score': max(scores)
+            })
+        return performance
+
     def to_dict(self):
         level_progress = self.get_level_progress()
         
@@ -154,6 +177,7 @@ class UserStatistics(db.Model):
                 'reading': round(self.reading_score, 2),
                 'listening': round(self.listening_score, 2)
             },
+            'topic_performance': self.get_topic_performance(),
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

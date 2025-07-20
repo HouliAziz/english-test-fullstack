@@ -80,6 +80,7 @@ const AIPage = () => {
   const [backendQuestions, setBackendQuestions] = useState<Question[] | null>(null);
   const [questionTimings, setQuestionTimings] = useState<{ [questionId: string]: number }>({});
   const [questionStartTime, setQuestionStartTime] = useState<number | null>(null);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -242,12 +243,10 @@ const AIPage = () => {
       // Submit quiz attempt to backend and get results
       const result = await apiClient.submitQuizAttempt(currentQuiz.id, userAnswersDict, questionTimings);
 
-      // Use backend score directly
+      // Use backend score and accuracy directly
       const backendScore = result.score || 0;
       setScore(backendScore);
-
-      // Optionally, calculate number of correct answers
-      // const numCorrect = Math.round((backendScore / 100) * currentQuiz.questions.length);
+      setAccuracy(result.accuracy ?? null);
 
       if (user) {
         updateProfile({
@@ -542,7 +541,7 @@ const AIPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">
-                        {Math.round(score)}%
+                        {accuracy !== null ? `${Math.round(accuracy)}%` : '--'}
                       </div>
                       <div className="text-sm text-gray-600">Accuracy</div>
                     </div>

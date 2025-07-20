@@ -88,7 +88,7 @@ class ApiClient {
     last_name?: string;
     level?: string;
   }): Promise<AuthResponse> {
-    const response = await this.request<AuthResponse>('/auth/register', {
+    const response = await this.request<AuthResponse>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -101,7 +101,7 @@ class ApiClient {
     username: string;
     password: string;
   }): Promise<AuthResponse> {
-    const response = await this.request<AuthResponse>('/auth/login', {
+    const response = await this.request<AuthResponse>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
@@ -111,11 +111,11 @@ class ApiClient {
   }
 
   async getProfile(): Promise<{ user: User }> {
-    return this.request<{ user: User }>('/auth/profile');
+    return this.request<{ user: User }>('/api/auth/profile');
   }
 
   async updateProfile(updates: Partial<User>): Promise<{ message: string; user: User }> {
-    return this.request<{ message: string; user: User }>('/auth/profile', {
+    return this.request<{ message: string; user: User }>('/api/auth/profile', {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
@@ -125,23 +125,23 @@ class ApiClient {
     current_password: string;
     new_password: string;
   }): Promise<{ message: string }> {
-    return this.request<{ message: string }>('/auth/change-password', {
+    return this.request<{ message: string }>('/api/auth/change-password', {
       method: 'POST',
       body: JSON.stringify(passwords),
     });
   }
 
   async deleteAccount(): Promise<any> {
-    return this.request<any>('/auth/delete-account', { method: 'DELETE' });
+    return this.request<any>('/api/auth/delete-account', { method: 'DELETE' });
   }
 
   // Lessons methods
   async getLessons(): Promise<any[]> {
-    return this.request<any[]>('/lessons');
+    return this.request<any[]>('/api/lessons');
   }
 
   async getLesson(id: number): Promise<any> {
-    return this.request<any>(`/lessons/${id}`);
+    return this.request<any>(`/api/lessons/${id}`);
   }
 
   async generateLesson(data: {
@@ -149,7 +149,7 @@ class ApiClient {
     level: string;
     lesson_type: string;
   }): Promise<any> {
-    return this.request<any>('/lessons/generate', {
+    return this.request<any>('/api/lessons/generate', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -157,15 +157,15 @@ class ApiClient {
 
   // Quiz methods
   async getQuizzes(): Promise<any[]> {
-    return this.request<any[]>('/quizzes');
+    return this.request<any[]>('/api/quizzes');
   }
 
   async getQuiz(id: number): Promise<any> {
-    return this.request<any>(`/quizzes/${id}`);
+    return this.request<any>(`/api/quizzes/${id}`);
   }
 
   async getQuizWithAnswers(id: number): Promise<any> {
-    return this.request<any>(`/quizzes/${id}/answers`);
+    return this.request<any>(`/api/quizzes/${id}/answers`);
   }
 
 
@@ -176,7 +176,7 @@ class ApiClient {
     duration_minutes?: number;
   }): Promise<any> {
     // First, generate the lesson
-    const lessonRes = await this.request<any>('/lessons/generate', {
+    const lessonRes = await this.request<any>('/api/lessons/generate', {
       method: 'POST',
       body: JSON.stringify({
         topic: data.topic,
@@ -188,7 +188,7 @@ class ApiClient {
     if (!lesson_id) throw new Error('Lesson generation failed');
 
     // Then, generate the quiz
-    const quizRes = await this.request<any>('/quizzes/generate', {
+    const quizRes = await this.request<any>('/api/quizzes/generate', {
       method: 'POST',
       body: JSON.stringify({
         topic: data.topic,
@@ -203,7 +203,7 @@ class ApiClient {
   async submitQuizAttempt(quizId: number, answers: Record<string, string>): Promise<any> {
     // Accept answers as a dictionary and send as { answers: dict }
     // Ensure answers is a dictionary, not an array
-    return this.request<any>(`/quizzes/${quizId}/submit`, {
+    return this.request<any>(`/api/quizzes/${quizId}/submit`, {
       method: 'POST',
       body: JSON.stringify({ answers }),
     });
@@ -211,15 +211,15 @@ class ApiClient {
 
   // Statistics methods
   async getStatistics(): Promise<any> {
-    return this.request<any>('/statistics');
+    return this.request<any>('/api/statistics');
   }
 
   async getAchievements(): Promise<any> {
-    return this.request<any>('/statistics/achievements');
+    return this.request<any>('/api/statistics/achievements');
   }
 
   async getDashboard(): Promise<any> {
-    return this.request<any>('/statistics/dashboard');
+    return this.request<any>('/api/statistics/dashboard');
   }
 
   logout() {
